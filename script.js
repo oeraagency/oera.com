@@ -12,14 +12,14 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('mousemove', e => {
     mouseX = e.clientX; mouseY = e.clientY;
     cursor.style.left = mouseX + 'px';
-    cursor.style.top  = mouseY + 'px';
+    cursor.style.top = mouseY + 'px';
   });
 
   function animateFollower() {
     followerX += (mouseX - followerX) * 0.12;
     followerY += (mouseY - followerY) * 0.12;
     follower.style.left = followerX + 'px';
-    follower.style.top  = followerY + 'px';
+    follower.style.top = followerY + 'px';
     requestAnimationFrame(animateFollower);
   }
   animateFollower();
@@ -67,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let particles = [];
 
   function resizeCanvas() {
-    canvas.width  = window.innerWidth;
+    canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resizeCanvas();
@@ -168,29 +168,43 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitBtn = document.getElementById('submitBtn');
   const submitText = document.getElementById('submitText');
 
-  form?.addEventListener('submit', e => {
+  form?.addEventListener('submit', async e => {
     e.preventDefault();
     submitText.textContent = 'Sending…';
     submitBtn.disabled = true;
     submitBtn.style.opacity = '0.7';
 
-    // Simulate sending
-    setTimeout(() => {
-      form.reset();
-      submitText.textContent = 'Send Message';
-      submitBtn.disabled = false;
-      submitBtn.style.opacity = '1';
-      formSuccess.classList.add('show');
-      setTimeout(() => formSuccess.classList.remove('show'), 5000);
-    }, 1800);
+    const data = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: data,
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (response.ok) {
+        form.reset();
+        formSuccess.classList.add('show');
+        setTimeout(() => formSuccess.classList.remove('show'), 6000);
+      } else {
+        alert('Something went wrong. Please try again or email us directly at oeraagency@gmail.com');
+      }
+    } catch (err) {
+      alert('Network error. Please email us at oeraagency@gmail.com');
+    }
+
+    submitText.textContent = 'Send Message';
+    submitBtn.disabled = false;
+    submitBtn.style.opacity = '1';
   });
 
   /* ── 3D TILT ON SERVICE CARDS ── */
   document.querySelectorAll('.service-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
-      const x = (e.clientX - rect.left) / rect.width  - 0.5;
-      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
       card.style.transform = `translateY(-8px) rotateX(${-y * 10}deg) rotateY(${x * 10}deg)`;
     });
     card.addEventListener('mouseleave', () => {
@@ -200,7 +214,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ── SMOOTH NAV CLICK ── */
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
       const target = document.querySelector(this.getAttribute('href'));
       if (target) {
         e.preventDefault();
